@@ -1,0 +1,247 @@
+---
+title: "Heart Disease Hypothesis Testing Portfolio"
+output: html_notebook
+---
+
+The aim of this project is to use statistical interference methods to reveal interesting informations about patients from Cleveland hospital. Dataset consists of the following columns:
+
+- Age,
+- Sex,
+- Trestbps - resting blood pressure (in mm Hg on admission to the hospital),
+- Chol - serum cholestoral	[mg/dl],
+- Cp - chest pain type,
+- Oldpeak - ST depression induced by exercise relative to rest,
+- Exang - exercise induced angina [1 = Yes, 0 = No],
+- Fbs - fasting blood sugar > 120 mg/dl [1 = Yes, 0 = No],
+- Thalach - maximum heart rate achieved [bits/min],
+- Heart disease [absence/presence].
+
+
+```{r}
+library(tidyverse)
+```
+Quick look at the dataset.
+```{r}
+df = read.csv("heart_disease.csv")
+head(df)
+```
+Let's check if dataset have any missing values.
+
+```{r}
+sum(is.na(df))
+```
+
+If there's any duplicate next command will remove them from dataset.
+
+```{r}
+df = distinct(df)
+```
+
+It's time to display descriptive statistics of variables. On this stage we are able to track any outliers or strange observations and remove them before analysis.
+
+```{r}
+summary(df)
+```
+Looking at this statistics you should spot two suspicious things. One is very high maximum resting blood pressure comparing to Q3. Let's take a closer look at this variable.
+
+```{r}
+boxplot(df$trestbps, main = "Box plot of resting blood pressure", xlab = "Resting blood pressure", horizontal = TRUE)
+```
+
+Although when it comes to persons having a heart disease this outlying observations might be realistic ones, the same ones for healty persons are almost extreme rare - let's inspect this ones.
+
+```{r}
+df%>% filter(trestbps > 175 & heart_disease == "absence")
+```
+
+These observations looks unusual. I decided to delete them.
+
+```{r}
+df = df%>% filter(!(trestbps > 175 & heart_disease == "absence"))
+```
+
+The second problem is the same as the first one but this time we will inspect cholesterol variable.
+
+```{r}
+boxplot(df$chol, main = "Box plot of cholesterol [mg/dl]", xlab = "Cholesterol [mg/dl]", horizontal = TRUE)
+```
+
+Cholesterol near 400 for could be possible but at level 564 is extremely high. Let's see this patient.
+
+```{r}
+df%>%filter(chol == 564)
+```
+Resting blood pressure doesn't correspond with such a high cholesterol. Something is wrong with this observation. Let's remove them also.
+
+```{r}
+df = df%>% filter(!(chol==564))
+```
+
+Unfortunately summary method doesn't display statistics for categorical data so we will do this manually.
+
+```{r}
+count(df, sex)
+```
+
+```{r}
+count(df, cp)
+```
+
+```{r}
+count(df, heart_disease)
+```
+## Cholesterol in norm?
+
+Researchs says that appropriate cholesterol level should be below 200 mg/dl. Let's check if patients who have heart disease have greater average cholesterol level. First let's extract adequate informations. 
+
+```{r}
+col_hd = df %>% filter(heart_disease == "presence")%>% select(chol)
+```
+
+One of the assumptions we need to check is whether or not our data is normally distributed. First let's look at the QQ plot.
+
+```{r}
+qqnorm(unlist(col_hd), pch = 1, frame = FALSE)
+qqline(unlist(col_hd), col = "red", lwd = 2)
+```
+Theoretical quantiles are matching sample quantiles almost everywhere so condition of normality of sample distribution is fulfilled.
+
+Let's perform the statistic test to see the result.
+
+```{r}
+t.test(unlist(col_hd), mu = 200, alternative = "greater")
+```
+To the of this project we will establish p - value as 0.05. Looking at the result we can with great certainty reject the null hypothesis which says that sample mean is equal to 200 in favor of alternative hypothesis saying that mean in our sample is greater then 200. In addition to this using 95 % confidence interval we might say that distribution from which this sample comes from has mean greater than 244.524. Let's also add that real mean of this sample is 251.4748.
+
+In other words it means that patients in this hospital whose got heart disease have statistically cholesterol limit exceeded.
+
+Below we can see the distribution of mentioned sample. Appropriate boundary cholesterol level was denoted as red line.
+
+```{r}
+qplot(unlist(col_hd)) + geom_histogram(color="black", fill="white") + geom_vline(aes(xintercept=200), color="red", linetype="dashed", size=1) + ggtitle("Histogram of sick person's cholesterol") + xlab("Cholesterol [mg/dl]") + ylab("Number of occurence")
+```
+
+
+## Comparing two samples
+
+Next thing we want to check is if patients with hearts disease are statistically older then healthy patients.
+
+As always the first thing is to extract data we need.
+
+```{r}
+age_heart_disease = df%>%
+  filter(heart_disease == "presence")%>%
+  select(age)
+
+age_no_heart_disease = df%>%
+  filter(heart_disease == "absence")%>%
+  select(age)
+```
+
+When it comes to this test we need to check the equality of variances in our samples.
+
+```{r}
+var(unlist(age_heart_disease))
+var(unlist(age_no_heart_disease))
+```
+
+In case of inequality of variances we can use Welch version of the T-test only if samples are normally distributed. Let's check this condition using Shapiro-Wilk teest.
+
+```{r}
+shapiro.test(unlist(age_heart_disease))
+```
+Sadly at least one of our samples aren't also normally distributed due to p-value < 0.05. Now we have only one method left -  Mann - Whitney U test.
+
+
+```{r}
+wilcox.test(unlist(age_heart_disease), unlist(age_no_heart_disease), alternative = "greater")
+```
+Interpreting the result we can say that patients with heart disease are statistically older when one's without disease. Below on the plot we can see distributions of age in these 2 categories. Orange and blue lines are representing respectively presence group mean age and absence group mean age.
+
+
+```{r}
+ggplot(df, aes(x=age, color=heart_disease, fill = heart_disease)) + geom_histogram(fill="white", alpha=0.5, position="identity") + theme(legend.position="top") + scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9")) + scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +  geom_vline(aes(xintercept=mean(unlist(age_heart_disease))),
+            color="blue", linetype="dashed", size=0.75) + geom_vline(aes(xintercept=mean(unlist(age_no_heart_disease))), color="orange", linetype="dashed", size=0.75) + ggtitle("Distribution of age in 2 categories")
+```
+
+
+
+## Test of independence
+
+The next question we might pose is if there's a relationship between sex and having a disease. To answet this first we need to get the numbers of persons in each of mentioned 4 categories.
+
+```{r}
+n_men_hd = df%>% filter(sex == "male" & heart_disease == "presence") %>% nrow()
+n_men_nhd =df%>% filter(sex == "male" & heart_disease == "absence") %>% nrow()
+n_women_hd = df%>% filter(sex == "female" & heart_disease == "presence") %>% nrow()
+n_women_nhd =df%>% filter(sex == "female" & heart_disease == "absence") %>% nrow()
+```
+
+Result are displayed below.
+
+```{r}
+sprintf("Number of mens having heart disease : %s .", n_men_hd)
+sprintf("Number of mens not having heart disease : %s .", n_men_nhd)
+sprintf("Number of womens having heart disease : %s .", n_women_hd)
+sprintf("Number of womens  not having heart disease : %s .", n_women_nhd)
+```
+
+From selected data we create a matrix. 
+
+```{r}
+x = matrix(c(n_men_hd, n_men_nhd, n_women_hd, n_women_nhd), ncol = 2)
+print(data.frame(x))
+```
+
+It's time to conduct a Chi Square test of independence.
+
+```{r}
+chisq.test(x)
+```
+Let's remind that null hypothesis in Chi Square tests says that there is no relationship between variables. In our case basing on p-value we can say that there is a significant relationship between sex and heart disease. In other words gender is somehow correlated with heart disease occurence.
+
+
+## Correlation Test
+
+Is cholesterol level correlated with resting blood pressure? We will get the answer shortly.
+
+```{r}
+cor.test(df$chol, df$trestbps)
+```
+
+Althrough test shows that there is a positive correlation what means that when cholesterol is raising resting blood is also raising the correlation indicator is small (0.13) even taking upper bound of confidence interval (0.23). Let's recall that  0 means no correlation and -1 or 1 means strong correlation.
+
+Below we can see a point plot of cholesterol and resting blood pressure. Graph certifies result of the correlation test.
+
+```{r}
+ggplot(df, aes(x= chol, y = trestbps)) + geom_point() + ggtitle("Point plot of cholesterol and resting blood pressure") + xlab("Cholesterol") + ylab("Resting blood pressure")
+```
+
+
+
+## Proportion Test
+
+It's worth adding that heart disease researches says that on average, 6 out of 10 people having heart disease are mens. Let's see if this proportion is preserved in our dataset.
+
+
+```{r}
+prop.test(x = n_men_hd, n = n_men_hd + n_women_hd, p = 0.6)
+```
+
+Looking at the result we can reject the null hypothesis saying that 6 out of 10 people having heart disease are mens in favour of an alternative hypothesis saying that the proportion is statistically different from this number. What's more using 95 % confidence interval we can say that that distribution from which this sample comes from has men to all genders proportion between 0.74 and 0.87. Let's also add that proportion in out sample is 0.82.
+
+
+## Variance analysis
+
+Last question we want to answer is if ST depression results differs based on chest pain type of patients. First thing to check is normality of all 4 samples and in order not to prolong the time this condition isn't fulfilled (it's easy to check using Shapiro-Wilk test). In this case we will use Kruskal-Wallis test.
+
+```{r}
+kruskal.test(cp ~ oldpeak , data = df)
+```
+Looking at the results we can say that statistically there are no differences between these 4 classes. In case of the opposite result the next step will be post hoc analysis. The purpose of this method will be answering the question which one of these classes are different from the rest.
+
+## Summary
+
+Hypothesis testing finds their applications in many science areas. For example medical industry is using statistical interference methods to analyze examinations results and plan new ones. Business analysis uses them compare different version of marketing strategies or product versions. Nowadays is really reliable tool to make decisions.
+
+
