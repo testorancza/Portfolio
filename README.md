@@ -31,3 +31,7 @@ Welcome to my Portfolio where you can find various projects from a Data Science 
     - *dynamic road sensor color*
     - *displaying live informations like current program mode or last stage speed*
     - *presenting end summary*
+
+
+<div align = "center"> <video src = "https://github.com/testorancza/Portfolio/assets/126068971/96c5401c-70c8-428a-8be7-533c2e9419c6"> </div>
+
