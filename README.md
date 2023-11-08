@@ -2,7 +2,7 @@
 
 ![Portfolio](https://github.com/testorancza/Portfolio/assets/126068971/ece748b7-6c9f-4d93-98b7-627be7a418bb)
 
-Welcome to my Portfolio where you can find various projects from a Data Science field. 
+Welcome to my Portfolio where you can find various projects from a Data Science field. Enjoy and leave a comment.
 
 ## List of currently available projects
 
@@ -25,11 +25,11 @@ Welcome to my Portfolio where you can find various projects from a Data Science 
 - **USA President's Speeches NLP**
   - *Reading long texts takes a lot of time. Moreover it's impossible to focus on every aspect of text at once. Natural Language Processing comes with a bunch of methods to analyze text files. Starting from cleaning and preprocessing text using lemmatizaion, tokenization and removing stop words  to recognizing named entity or generating text summaries. In this project we will work on USA President's speeches to extract important informations from each speech and in the end compare them. Project involves using Wordclouds, Sentiment Analysis, Information Extraction (NER), Topic Modelling (LDA), Text Similarity and generating summaries using LuhnSummarizer.*
 - **Highway Speedometer OpenCV**
-  - *Imagine you are working for a Polish Police Traffic Department. Recently you have noticed an increase in the number of recordings from highways where driver is speeding. You decided to create a software to estimate vehicle speed on the highway from video to detect speeding. At the first glance problem seems to be a hard nut to crack but here is a smart solution. Each two traffic bollards are located in the distance of 100m. The idea is to recognize and track bollard until vehicle passes them what means end of previous sector and start of new one. If, in addition we measure elapsed time in each sector we can easly calculate sector speed. This project has been wrtitten in Python using OpenCV and has the following features:*
+  - *Imagine you are working for a Polish Police Traffic Department. Recently you have noticed an increase in the number of recordings from highways where driver is speeding. You decided to create a software to estimate vehicle speed on the highway from video to detect speeding. At the first glance problem seems to be a hard nut to crack but here is a smart solution. Each two traffic bollards are located in the distance of 100 m. The idea is to recognize and track bollard until vehicle passes them what means end of previous sector and start of new one. If, in addition we measure elapsed time in each sector we can easly calculate sector speed. This project has been wrtitten in Python using OpenCV and has the following features:*
     - *bollard detection and tracking*
     - *presenting sector separator line*
-    - *dynamic road sensor color*
-    - *displaying live informations like current program mode or last stage speed*
+    - *dynamic road sensor colors*
+    - *displaying live informations like current program mode and last stage speed*
     - *presenting final summary*
 
   - Below you can see an example output from Speedometer. Sample video comes from polish highway A2 near Poznań.
