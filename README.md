@@ -36,3 +36,5 @@ Welcome to my Portfolio where you can find various projects from a Data Science 
 
 <div align = "center"> <video src = "https://github.com/testorancza/Portfolio/assets/126068971/96c5401c-70c8-428a-8be7-533c2e9419c6"> </div>
 
+- **NBA Database Analysis - SQL**
+  - *The aim of this project is to use NBA dataset to discover informations about 2022/2023 season. Project consists of comparing statistics, finding teams details like squad and draft history, benchmarking each conference winners any many other. Besides that we will dig into some historical data to find things like highest player in league, national minorities or dunk record in a single game. To connect to the database we used sqlite3 module in Python. Some of the SQL techniques we used in this project are : joins, subqueries, views, DML, windows, string manipulation and date conversion techqniques.*
